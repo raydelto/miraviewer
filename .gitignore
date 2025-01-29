@@ -1,0 +1,7 @@
+Debug
+.vs
+.vscode
+**.o
+main
+.DS_Store
+imgui.ini
