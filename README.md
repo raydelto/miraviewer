@@ -1,8 +1,8 @@
-# OpenGL OBJ Model Loading
+# Mira Viewer
 
-This is a simple Wavefront OBJ format model loader app that renders using OpenGL the loded mesh.
+Mira viewer is an Open Source 3D model visualizer.
 
-It is based on the work done by Steve Jones and maintained by Raydelto Hernandez.
+It is based on the work done by Steve Jones. The development effort is coordinated by Raydelto Hernandez and supported by many other open source contributors.
 
 ## Current supported platforms:
 
@@ -17,4 +17,10 @@ It is based on the work done by Steve Jones and maintained by Raydelto Hernandez
 1. Android XR.
 1. HorizonOS.
 
-If you have any questions you can contact me at raydelto@raycasters.com
+If you have any questions you can contact us at info@raycasters.com
+
+## Known Issues
+
+1. The test model file (models/skull.obj) doesn't load correctly.
+2. The test model file (models/cottage_obj.obj) doesn't load correctly.
+3. The test model file (models/robot.obj) is cropped when loaded.
