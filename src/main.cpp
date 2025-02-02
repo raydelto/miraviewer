@@ -29,7 +29,7 @@
 #include "ImGuiFileDialog/ImGuiFileDialog.h"
 
 // Global Variables
-const char* APP_TITLE = "Render OBJ Models in OpenGL";
+const char* APP_TITLE = "MiraViewer v0.1";
 int gWindowWidth = 1024;
 int gWindowHeight = 768;
 GLFWwindow* gWindow = nullptr;
