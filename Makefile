@@ -67,6 +67,9 @@ main.exe: src/main.cpp $(OBJ)
 clean:
 	del *.o
 	del main.exe
+	del common\includes\imgui\backends\*.o
+	del common\includes\imgui\*.o
+	del common\includes\ImGuiFileDialog\*.o
 endif
 
 Texture2D.o: src/Texture2D.cpp headers/Texture2D.h
