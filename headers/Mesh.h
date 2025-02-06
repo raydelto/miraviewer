@@ -40,5 +40,6 @@ private:
 
 	bool mLoaded;
 	std::vector<Vertex> mVertices;
-	GLuint mVBO, mVAO;
+	std::vector<GLuint> mIndices;
+	GLuint mVBO, mVAO, mEBO;
 };
