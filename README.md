@@ -21,6 +21,5 @@ If you have any questions you can contact us at info@raycasters.com
 
 ## Known Issues
 
-1. The test model file (models/skull.obj) doesn't load correctly.
-2. The test model file (models/cottage_obj.obj) doesn't load correctly.
-3. The test model file (models/robot.obj) is cropped when loaded.
+There are in progress efforts to address the following known issue:
+1. Navigation controls are too limited.
