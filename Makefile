@@ -1,11 +1,9 @@
 UNAME_S := $(shell uname -s)
-LIBS = -L. \
-	   -L./common/mingw32/lib \
-      -lglew32 \
+LIBS = -lglew32 \
 	  -lglfw3 \
 	  -lopengl32 \
 	  -lgdi32 \
-	  -lassimp-5
+	  -lassimp
 
 INCLUDES = -I./common/includes \
 		   -I./headers \
@@ -57,7 +55,11 @@ main: src/main.cpp $(OBJ)
 clean:
 	rm -f *.o
 	rm -f main
-else
+
+else # Windows
+# Make sure to change the paths to the correct ones on your system.
+LIBS += -LC:\msys64\mingw64\lib
+INCLUDES += -IC:\msys64\mingw64\include
 
 all: main.exe
 
