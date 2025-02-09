@@ -364,11 +364,11 @@ void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
 //-----------------------------------------------------------------------------
 void glfw_onMouseScroll(GLFWwindow* window, double deltaX, double deltaY)
 {
-	// double fov = fpsCamera.getFOV() + deltaY * ZOOM_SENSITIVITY;
+	double fov = fpsCamera.getFOV() + deltaY * ZOOM_SENSITIVITY;
 
-	// fov = glm::clamp(fov, 1.0, 120.0);
+	fov = glm::clamp(fov, 1.0, 120.0);
 
-	// fpsCamera.setFOV((float)fov);
+	fpsCamera.setFOV((float)fov);
 }
 
 //-----------------------------------------------------------------------------
