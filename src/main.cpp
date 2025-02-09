@@ -35,11 +35,21 @@ int gWindowHeight = 768;
 GLFWwindow* gWindow = nullptr;
 bool gWireframe = false;
 
-
 FPSCamera fpsCamera(glm::vec3(0.0f, 3.0f, 10.0f));
 constexpr double ZOOM_SENSITIVITY = -3.0;
 constexpr float MOVE_SPEED = 5.0; // units per second
 constexpr float MOUSE_SENSITIVITY = 0.1f;
+
+bool isDragging = false;
+const float DRAG_THRESHOLD = 5.0f;
+
+double initialMouseX = 0.0;
+double initialMouseY = 0.0;
+double lastMouseX = 0.0;
+double lastMouseY = 0.0;
+
+float modelRotationAngleX = 0.0;
+float modelRotationAngleY = 0.0;
 
 // Function prototypes
 void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -219,8 +229,10 @@ int main()
         // Render the scene
         glm::mat4 position = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, 0.0f));
         glm::mat4 scaling = glm::scale(glm::mat4(1.0), glm::vec3(1.0f, 1.0f, 1.0f));
+        glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), glm::radians(modelRotationAngleX), glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), glm::radians(modelRotationAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        model = position * scaling;
+        model = position * rotationX * rotationY * scaling;
         shaderProgram.setUniform("model", model);
 
         if (selectedTexture != nullptr) 
@@ -376,14 +388,40 @@ void glfw_onMouseScroll(GLFWwindow* window, double deltaX, double deltaY)
 //-----------------------------------------------------------------------------
 void update(double elapsedTime)
 {
-	// Camera orientation
-	// double mouseX, mouseY;
+    double mouseX, mouseY;
+    glfwGetCursorPos(gWindow, &mouseX, &mouseY);
 
-	// Get the current mouse cursor position delta
-	// glfwGetCursorPos(gWindow, &mouseX, &mouseY);
+    if (glfwGetMouseButton(gWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    {
+        if (!isDragging)
+        {
+            // First click: store initial position
+            initialMouseX = mouseX;
+            initialMouseY = mouseY;
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+            isDragging = true; 
+        }
 
-	// Rotate the camera the difference in mouse distance from the center screen.  Multiply this delta by a speed scaler
-	// fpsCamera.rotate((float)(gWindowWidth / 2.0 - mouseX) * MOUSE_SENSITIVITY, (float)(gWindowHeight / 2.0 - mouseY) * MOUSE_SENSITIVITY);
+        // Check if movement is above threshold
+        float deltaX = (float)(mouseX - initialMouseX);
+        float deltaY = (float)(mouseY - initialMouseY);
+        float distance = sqrt(deltaX * deltaX + deltaY * deltaY);
+
+        if (distance > DRAG_THRESHOLD)
+        {
+            // Apply rotation only if the mouse has moved enough
+            modelRotationAngleX += (float)(mouseY - lastMouseY) * MOUSE_SENSITIVITY;
+            modelRotationAngleY += (float)(mouseX - lastMouseX) * MOUSE_SENSITIVITY;
+        }
+
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+    }
+    else
+    {
+        isDragging = false;
+    }
 
 	// Clamp mouse cursor to center of screen
 	// glfwSetCursorPos(gWindow, gWindowWidth / 2.0, gWindowHeight / 2.0);
