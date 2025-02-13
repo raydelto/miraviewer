@@ -216,7 +216,7 @@ int main()
 		view = fpsCamera.getViewMatrix();
 
 		// Create the projection matrix
-		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), (float)gWindowWidth / (float)gWindowHeight, 0.1f, 200.0f);
+		projection = glm::perspective(glm::radians(fpsCamera.getFOV()), static_cast<float>(gWindowWidth) / static_cast<float>(gWindowHeight), 0.1f, 200.0f);
 
 		// Must be called BEFORE setting uniforms because setting uniforms is done
 		// on the currently active shader program.
@@ -368,7 +368,7 @@ void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
 {
 	gWindowWidth = width;
 	gWindowHeight = height;
-	glViewport(0, 0, gWindowWidth, gWindowHeight);
+	glViewport(0, 0, static_cast<float>(gWindowWidth), static_cast<float>(gWindowHeight));
 }
 
 //-----------------------------------------------------------------------------
@@ -380,7 +380,7 @@ void glfw_onMouseScroll(GLFWwindow* window, double deltaX, double deltaY)
 
 	fov = glm::clamp(fov, 1.0, 120.0);
 
-	fpsCamera.setFOV((float)fov);
+	fpsCamera.setFOV(static_cast<float>(fov));
 }
 
 //-----------------------------------------------------------------------------
@@ -404,15 +404,15 @@ void update(double elapsedTime)
         }
 
         // Check if movement is above threshold
-        float deltaX = (float)(mouseX - initialMouseX);
-        float deltaY = (float)(mouseY - initialMouseY);
+        float deltaX = static_cast<float>(mouseX - initialMouseX);
+        float deltaY = static_cast<float>(mouseY - initialMouseY);
         float distance = sqrt(deltaX * deltaX + deltaY * deltaY);
 
         if (distance > DRAG_THRESHOLD)
         {
             // Apply rotation only if the mouse has moved enough
-            modelRotationAngleX += (float)(mouseY - lastMouseY) * MOUSE_SENSITIVITY;
-            modelRotationAngleY += (float)(mouseX - lastMouseX) * MOUSE_SENSITIVITY;
+            modelRotationAngleX += static_cast<float>(mouseY - lastMouseY) * MOUSE_SENSITIVITY;
+            modelRotationAngleY += static_cast<float>(mouseX - lastMouseX) * MOUSE_SENSITIVITY;
         }
 
         lastMouseX = mouseX;
@@ -430,21 +430,21 @@ void update(double elapsedTime)
 
 	// Forward/backward
 	if (glfwGetKey(gWindow, GLFW_KEY_W) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getLook());
+		fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * fpsCamera.getLook());
 	else if (glfwGetKey(gWindow, GLFW_KEY_S) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * -fpsCamera.getLook());
+		fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * -fpsCamera.getLook());
 
 	// Strafe left/right
 	if (glfwGetKey(gWindow, GLFW_KEY_A) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * -fpsCamera.getRight());
+		fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * -fpsCamera.getRight());
 	else if (glfwGetKey(gWindow, GLFW_KEY_D) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getRight());
+		fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * fpsCamera.getRight());
 
 	// Up/down
 	if (glfwGetKey(gWindow, GLFW_KEY_Z) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * fpsCamera.getUp());
+		fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * fpsCamera.getUp());
 	else if (glfwGetKey(gWindow, GLFW_KEY_X) == GLFW_PRESS)
-		fpsCamera.move(MOVE_SPEED * (float)elapsedTime * -fpsCamera.getUp());
+		fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * -fpsCamera.getUp());
 }
 
 //-----------------------------------------------------------------------------
@@ -464,7 +464,7 @@ void showFPS(GLFWwindow* window)
 	if (elapsedSeconds > 0.25)
 	{
 		previousSeconds = currentSeconds;
-		double fps = (double)frameCount / elapsedSeconds;
+		double fps = static_cast<double>(frameCount) / elapsedSeconds;
 		double msPerFrame = 1000.0 / fps;
 
 		// The C++ way of setting the window title
