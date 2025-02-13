@@ -37,8 +37,8 @@ bool gWireframe = false;
 
 FPSCamera fpsCamera(glm::vec3(0.0f, 3.0f, 10.0f));
 constexpr double ZOOM_SENSITIVITY = -3.0;
-constexpr float MOVE_SPEED = 5.0; // units per second
-constexpr float MOUSE_SENSITIVITY = 0.1f;
+constexpr float MOVE_SPEED = 5.0f; // units per second
+constexpr float MOUSE_SENSITIVITY = 750.0f;
 
 bool isDragging = false;
 const float DRAG_THRESHOLD = 5.0f;
@@ -411,8 +411,8 @@ void update(double elapsedTime)
         if (distance > DRAG_THRESHOLD)
         {
             // Apply rotation only if the mouse has moved enough
-            modelRotationAngleX += static_cast<float>(mouseY - lastMouseY) * MOUSE_SENSITIVITY;
-            modelRotationAngleY += static_cast<float>(mouseX - lastMouseX) * MOUSE_SENSITIVITY;
+            modelRotationAngleX += static_cast<float>(mouseY - lastMouseY) * MOUSE_SENSITIVITY * static_cast<float>(elapsedTime);
+            modelRotationAngleY += static_cast<float>(mouseX - lastMouseX) * MOUSE_SENSITIVITY * static_cast<float>(elapsedTime);
         }
 
         lastMouseX = mouseX;
