@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// Mesh.h by Steve Jones 
+// Mesh.h by Steve Jones
 // Copyright (c) 2015-2019 Game Institute. All Rights Reserved.
 //
 // Basic Mesh class
@@ -12,10 +12,9 @@
 #include <glad/glad.h>
 #else
 #define GLEW_STATIC
-#include "GL/glew.h"	// Important - this header must come before glfw3 header
+#include "GL/glew.h" // Important - this header must come before glfw3 header
 #endif
 #include "glm/glm.hpp"
-
 
 struct Vertex
 {
@@ -26,17 +25,15 @@ struct Vertex
 class Mesh
 {
 public:
-
-	 Mesh();
+	Mesh();
 	~Mesh();
 
-    void loadModel(const std::string& filename);
+	void loadModel(const std::string &filename);
 	void draw();
 
 private:
-
 	void initBuffers();
-    void processFaceVertex(const std::string& faceData, std::vector<unsigned int>& vertexIndices, std::vector<unsigned int>& uvIndices);
+	void processFaceVertex(const std::string &faceData, std::vector<unsigned int> &vertexIndices, std::vector<unsigned int> &uvIndices);
 
 	bool mLoaded;
 	std::vector<Vertex> mVertices;

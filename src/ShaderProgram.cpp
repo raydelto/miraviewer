@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// ShaderProgram.cpp by Steve Jones 
+// ShaderProgram.cpp by Steve Jones
 // Copyright (c) 2015-2019 Game Institute. All Rights Reserved.
 //
 // GLSL shader manager class
@@ -16,8 +16,8 @@
 //-----------------------------------------------------------------------------
 ShaderProgram::ShaderProgram()
 	: mHandle(0)
-{}
-
+{
+}
 
 //-----------------------------------------------------------------------------
 // Destructor
@@ -31,12 +31,12 @@ ShaderProgram::~ShaderProgram()
 //-----------------------------------------------------------------------------
 // Loads vertex and fragment shaders
 //-----------------------------------------------------------------------------
-bool ShaderProgram::loadShaders(const char* vsFilename, const char* fsFilename)
+bool ShaderProgram::loadShaders(const char *vsFilename, const char *fsFilename)
 {
 	string vsString = fileToString(vsFilename);
 	string fsString = fileToString(fsFilename);
-	const GLchar* vsSourcePtr = vsString.c_str();
-	const GLchar* fsSourcePtr = fsString.c_str();
+	const GLchar *vsSourcePtr = vsString.c_str();
+	const GLchar *fsSourcePtr = fsString.c_str();
 
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
@@ -63,7 +63,6 @@ bool ShaderProgram::loadShaders(const char* vsFilename, const char* fsFilename)
 	glLinkProgram(mHandle);
 	checkCompileErrors(mHandle, PROGRAM);
 
-
 	glDeleteShader(vs);
 	glDeleteShader(fs);
 
@@ -76,7 +75,7 @@ bool ShaderProgram::loadShaders(const char* vsFilename, const char* fsFilename)
 // Opens and reads contents of ASCII file to a string.  Returns the string.
 // Not good for very large files.
 //-----------------------------------------------------------------------------
-string ShaderProgram::fileToString(const string& filename)
+string ShaderProgram::fileToString(const string &filename)
 {
 	std::stringstream ss;
 	std::ifstream file;
@@ -113,7 +112,7 @@ void ShaderProgram::use()
 //-----------------------------------------------------------------------------
 // Checks for shader compiler errors
 //-----------------------------------------------------------------------------
-void  ShaderProgram::checkCompileErrors(GLuint shader, ShaderType type)
+void ShaderProgram::checkCompileErrors(GLuint shader, ShaderType type)
 {
 	int status = 0;
 
@@ -126,7 +125,7 @@ void  ShaderProgram::checkCompileErrors(GLuint shader, ShaderType type)
 			glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &length);
 
 			// The length includes the NULL character
-			string errorLog(length, ' ');	// Resize and fill with space character
+			string errorLog(length, ' '); // Resize and fill with space character
 			glGetProgramInfoLog(shader, length, &length, &errorLog[0]);
 			std::cerr << "Error! Shader program failed to link. " << errorLog << std::endl;
 		}
@@ -140,12 +139,11 @@ void  ShaderProgram::checkCompileErrors(GLuint shader, ShaderType type)
 			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 
 			// The length includes the NULL character
-			string errorLog(length, ' ');  // Resize and fill with space character
+			string errorLog(length, ' '); // Resize and fill with space character
 			glGetShaderInfoLog(shader, length, &length, &errorLog[0]);
 			std::cerr << "Error! Shader failed to compile. " << errorLog << std::endl;
 		}
 	}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -159,7 +157,7 @@ GLuint ShaderProgram::getProgram() const
 //-----------------------------------------------------------------------------
 // Sets a glm::vec2 shader uniform
 //-----------------------------------------------------------------------------
-void ShaderProgram::setUniform(const GLchar* name, const glm::vec2& v)
+void ShaderProgram::setUniform(const GLchar *name, const glm::vec2 &v)
 {
 	GLint loc = getUniformLocation(name);
 	glUniform2f(loc, v.x, v.y);
@@ -168,7 +166,7 @@ void ShaderProgram::setUniform(const GLchar* name, const glm::vec2& v)
 //-----------------------------------------------------------------------------
 // Sets a glm::vec3 shader uniform
 //-----------------------------------------------------------------------------
-void ShaderProgram::setUniform(const GLchar* name, const glm::vec3& v)
+void ShaderProgram::setUniform(const GLchar *name, const glm::vec3 &v)
 {
 	GLint loc = getUniformLocation(name);
 	glUniform3f(loc, v.x, v.y, v.z);
@@ -177,7 +175,7 @@ void ShaderProgram::setUniform(const GLchar* name, const glm::vec3& v)
 //-----------------------------------------------------------------------------
 // Sets a glm::vec4 shader uniform
 //-----------------------------------------------------------------------------
-void ShaderProgram::setUniform(const GLchar* name, const glm::vec4& v)
+void ShaderProgram::setUniform(const GLchar *name, const glm::vec4 &v)
 {
 	GLint loc = getUniformLocation(name);
 	glUniform4f(loc, v.x, v.y, v.z, v.w);
@@ -186,7 +184,7 @@ void ShaderProgram::setUniform(const GLchar* name, const glm::vec4& v)
 //-----------------------------------------------------------------------------
 // Sets a glm::mat4 shader uniform
 //-----------------------------------------------------------------------------
-void ShaderProgram::setUniform(const GLchar* name, const glm::mat4& m)
+void ShaderProgram::setUniform(const GLchar *name, const glm::mat4 &m)
 {
 	GLint loc = getUniformLocation(name);
 
@@ -201,7 +199,7 @@ void ShaderProgram::setUniform(const GLchar* name, const glm::mat4& m)
 // Returns the uniform identifier given it's string name.
 // NOTE: Shader must be currently active first.
 //-----------------------------------------------------------------------------
-GLint ShaderProgram::getUniformLocation(const GLchar* name)
+GLint ShaderProgram::getUniformLocation(const GLchar *name)
 {
 	std::map<string, GLint>::iterator it = mUniformLocations.find(name);
 

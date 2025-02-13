@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// Texture2D.cpp by Steve Jones 
+// Texture2D.cpp by Steve Jones
 // Copyright (c) 2015-2019 Game Institute. All Rights Reserved.
 //
 // Simple 2D texture class
@@ -31,12 +31,12 @@ Texture2D::~Texture2D()
 // http://nothings.org/stb_image.h
 // Creates mip maps if generateMipMaps is true.
 //-----------------------------------------------------------------------------
-bool Texture2D::loadTexture(const string& fileName, bool generateMipMaps)
+bool Texture2D::loadTexture(const string &fileName, bool generateMipMaps)
 {
 	int width, height, components;
 
 	// Use stbi image library to load our image
-	unsigned char* imageData = stbi_load(fileName.c_str(), &width, &height, &components, STBI_rgb_alpha);
+	unsigned char *imageData = stbi_load(fileName.c_str(), &width, &height, &components, STBI_rgb_alpha);
 
 	if (imageData == NULL)
 	{

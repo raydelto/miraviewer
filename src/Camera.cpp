@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// Camera.cpp by Steve Jones 
+// Camera.cpp by Steve Jones
 // Copyright (c) 2015-2019 Game Institute. All Rights Reserved.
 //
 // Basic camera class including derived orbit-style and first person
@@ -15,21 +15,21 @@ const float DEF_FOV = 45.0f; // degrees
 // Base Camera class constructor
 //------------------------------------------------------------
 Camera::Camera()
-: mPosition(glm::vec3(0.0f, 0.0f, 0.0f)),
-  mTargetPos(glm::vec3(0.0f, 0.0f, 0.0f)),
-  mUp(glm::vec3(0.0f, 1.0f, 0.0f)),
-  mRight(0.0f, 0.0f, 0.0f),
-  WORLD_UP(0.0f, 1.0f, 0.0f),
-  mYaw(glm::pi<float>()),
-  mPitch(0.0f),
-  mFOV(DEF_FOV)
+	: mPosition(glm::vec3(0.0f, 0.0f, 0.0f)),
+	  mTargetPos(glm::vec3(0.0f, 0.0f, 0.0f)),
+	  mUp(glm::vec3(0.0f, 1.0f, 0.0f)),
+	  mRight(0.0f, 0.0f, 0.0f),
+	  WORLD_UP(0.0f, 1.0f, 0.0f),
+	  mYaw(glm::pi<float>()),
+	  mPitch(0.0f),
+	  mFOV(DEF_FOV)
 {
 }
 
 //------------------------------------------------------------
 // Base Camera - Returns view matrix
 //------------------------------------------------------------
-glm::mat4 Camera::getViewMatrix()const
+glm::mat4 Camera::getViewMatrix() const
 {
 	return glm::lookAt(mPosition, mTargetPos, mUp);
 }
@@ -37,7 +37,7 @@ glm::mat4 Camera::getViewMatrix()const
 //------------------------------------------------------------
 // Base Camera - Returns camera's local look vector
 //------------------------------------------------------------
-const glm::vec3& Camera::getLook() const
+const glm::vec3 &Camera::getLook() const
 {
 	return mLook;
 }
@@ -45,7 +45,7 @@ const glm::vec3& Camera::getLook() const
 //------------------------------------------------------------
 // Base Camera - Returns camera's local right vector
 //------------------------------------------------------------
-const glm::vec3& Camera::getRight() const
+const glm::vec3 &Camera::getRight() const
 {
 	return mRight;
 }
@@ -53,7 +53,7 @@ const glm::vec3& Camera::getRight() const
 //------------------------------------------------------------
 // Base Camera - Returns camera's local up vector
 //------------------------------------------------------------
-const glm::vec3& Camera::getUp() const
+const glm::vec3 &Camera::getUp() const
 {
 	return mUp;
 }
@@ -71,7 +71,7 @@ FPSCamera::FPSCamera(glm::vec3 position, float yaw, float pitch)
 //-----------------------------------------------------------------------------
 // FPSCamera - Sets the camera position in world space
 //-----------------------------------------------------------------------------
-void FPSCamera::setPosition(const glm::vec3& position)
+void FPSCamera::setPosition(const glm::vec3 &position)
 {
 	mPosition = position;
 }
@@ -79,7 +79,7 @@ void FPSCamera::setPosition(const glm::vec3& position)
 //-----------------------------------------------------------------------------
 // FPSCamera - Sets the incremental position of the camera in world space
 //-----------------------------------------------------------------------------
-void FPSCamera::move(const glm::vec3& offsetPos)
+void FPSCamera::move(const glm::vec3 &offsetPos)
 {
 	mPosition += offsetPos;
 	updateCameraVectors();
@@ -123,18 +123,18 @@ void FPSCamera::updateCameraVectors()
 	mTargetPos = mPosition + mLook;
 }
 
-
 //------------------------------------------------------------
 // OrbitCamera - constructor
 //------------------------------------------------------------
 OrbitCamera::OrbitCamera()
 	: mRadius(10.0f)
-{}
+{
+}
 
 //------------------------------------------------------------
 // OrbitCamera - Sets the target to look at
 //------------------------------------------------------------
-void OrbitCamera::setLookAt(const glm::vec3& target)
+void OrbitCamera::setLookAt(const glm::vec3 &target)
 {
 	mTargetPos = target;
 }
