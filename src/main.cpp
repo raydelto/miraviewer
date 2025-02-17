@@ -262,12 +262,17 @@ int main()
 
         if (selectedMesh != nullptr)
         {
+            float zoomLevel = fpsCamera.getFOV();
 
             ImGui::Begin("Controls");
 
             ImGui::SliderFloat("Rotation X", &modelRotationAngleX, 0.0f, 360.0f);  
             ImGui::SliderFloat("Rotation Y", &modelRotationAngleY, 0.0f, 360.0f);  
             ImGui::SliderFloat("Mouse rotation sensitivity", &mouseSensitivity, 100.0f, 1000.0f);
+            
+            if (ImGui::SliderFloat("Zoom", &zoomLevel, 1.0f, 120.0f)) {
+                fpsCamera.setFOV(glm::clamp(zoomLevel, 1.0f, 120.0f));
+            } 
 
             ImGui::End();
         }
