@@ -51,6 +51,8 @@ float modelRotationAngleX = 0.0;
 float modelRotationAngleY = 0.0;
 float mouseSensitivity = 750.0f;
 
+ImVec4 clearColor = ImVec4(0.23f, 0.38f, 0.47f, 1.0f);
+
 // Function prototypes
 void glfw_onKey(GLFWwindow *window, int key, int scancode, int action, int mode);
 void glfw_onFramebufferSize(GLFWwindow *window, int width, int height);
@@ -212,6 +214,7 @@ int main()
         update(deltaTime);
 
         // Clear the screen
+        glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 model(1.0), view(1.0), projection(1.0);
@@ -273,6 +276,8 @@ int main()
             if (ImGui::SliderFloat("Zoom", &zoomLevel, 1.0f, 120.0f)) {
                 fpsCamera.setFOV(glm::clamp(zoomLevel, 1.0f, 120.0f));
             } 
+
+            ImGui::ColorEdit3("Clear color", (float*)&clearColor);
 
             ImGui::End();
         }
@@ -352,8 +357,6 @@ bool initOpenGL()
     // Hides and grabs cursor, unlimited movement
     // glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     // glfwSetCursorPos(gWindow, gWindowWidth / 2.0, gWindowHeight / 2.0);
-
-    glClearColor(0.23f, 0.38f, 0.47f, 1.0f);
 
     // Define the viewport dimensions
     glViewport(0, 0, gWindowWidth, gWindowHeight);
