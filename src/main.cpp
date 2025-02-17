@@ -38,7 +38,6 @@ bool gWireframe = false;
 FPSCamera fpsCamera(glm::vec3(0.0f, 3.0f, 10.0f));
 constexpr double ZOOM_SENSITIVITY = -3.0;
 constexpr float MOVE_SPEED = 5.0f; // units per second
-constexpr float MOUSE_SENSITIVITY = 750.0f;
 
 bool isDragging = false;
 const float DRAG_THRESHOLD = 5.0f;
@@ -50,6 +49,7 @@ double lastMouseY = 0.0;
 
 float modelRotationAngleX = 0.0;
 float modelRotationAngleY = 0.0;
+float mouseSensitivity = 750.0f;
 
 // Function prototypes
 void glfw_onKey(GLFWwindow *window, int key, int scancode, int action, int mode);
@@ -266,8 +266,8 @@ int main()
             ImGui::Begin("Controls");
 
             ImGui::SliderFloat("Rotation X", &modelRotationAngleX, 0.0f, 360.0f);  
-
             ImGui::SliderFloat("Rotation Y", &modelRotationAngleY, 0.0f, 360.0f);  
+            ImGui::SliderFloat("Mouse rotation sensitivity", &mouseSensitivity, 100.0f, 1000.0f);
 
             ImGui::End();
         }
@@ -432,8 +432,8 @@ void update(double elapsedTime)
         if (distance > DRAG_THRESHOLD)
         {
             // Apply rotation only if the mouse has moved enough
-            modelRotationAngleX += static_cast<float>(mouseY - lastMouseY) * MOUSE_SENSITIVITY * static_cast<float>(elapsedTime);
-            modelRotationAngleY += static_cast<float>(mouseX - lastMouseX) * MOUSE_SENSITIVITY * static_cast<float>(elapsedTime);
+            modelRotationAngleX += static_cast<float>(mouseY - lastMouseY) * mouseSensitivity * static_cast<float>(elapsedTime);
+            modelRotationAngleY += static_cast<float>(mouseX - lastMouseX) * mouseSensitivity * static_cast<float>(elapsedTime);
         }
 
         lastMouseX = mouseX;
