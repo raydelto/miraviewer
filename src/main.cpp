@@ -260,6 +260,18 @@ int main()
 
         renderMenuBar();
 
+        if (selectedMesh != nullptr)
+        {
+
+            ImGui::Begin("Controls");
+
+            ImGui::SliderFloat("Rotation X", &modelRotationAngleX, 0.0f, 360.0f);  
+
+            ImGui::SliderFloat("Rotation Y", &modelRotationAngleY, 0.0f, 360.0f);  
+
+            ImGui::End();
+        }
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -390,6 +402,13 @@ void glfw_onMouseScroll(GLFWwindow *window, double deltaX, double deltaY)
 //-----------------------------------------------------------------------------
 void update(double elapsedTime)
 {
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse) 
+    {
+        return; // Skip processing mouse input in GLFW
+    }
+
     double mouseX, mouseY;
     glfwGetCursorPos(gWindow, &mouseX, &mouseY);
 
