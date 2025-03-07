@@ -25,7 +25,7 @@ OBJ = Texture2D.o \
 
 WARNINGS=-w
 
-FLAGS=-std=c++17
+FLAGS=-std=c++17 -mwindows
 
 ifeq ($(UNAME_S),Darwin)
 FRAMEWORKS=-framework OpenGL
