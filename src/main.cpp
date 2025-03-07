@@ -139,7 +139,7 @@ void renderMenuBar()
             ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose files", filters, config);
         }
 
-        if (ImGui::Button("Save"))
+        if (ImGui::Button("Load"))
         {
             if (!modelPath.empty() && !texturePath.empty())
             {
