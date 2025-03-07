@@ -2,7 +2,9 @@
 
 Mira viewer is an Open Source 3D model visualizer.
 
-It is based on the work done by Steve Jones. The development effort is coordinated by Raydelto Hernandez and supported by many other open source contributors.
+The codebase is a fork of the minimalist First Person Shooter (FPS ) created by Steve Jones. 
+
+The development effort of MiraViewer is coordinated by Raydelto Hernandez and supported by many other open source contributors.
 
 ## Current supported platforms:
 
@@ -19,7 +21,3 @@ It is based on the work done by Steve Jones. The development effort is coordinat
 
 If you have any questions you can contact us at info@raycasters.com
 
-## Known Issues
-
-There are in progress efforts to address the following known issue:
-1. Navigation controls are too limited.
