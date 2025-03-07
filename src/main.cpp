@@ -28,30 +28,44 @@
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "ImGuiFileDialog/ImGuiFileDialog.h"
 
-// Global Variables
-const char *APP_TITLE = "MiraViewer v0.1";
-int gWindowWidth = 1024;
-int gWindowHeight = 768;
-GLFWwindow *gWindow = nullptr;
-bool gWireframe = false;
+namespace
+{
+    constexpr float MIN_FOV = 20.0f;
+    constexpr float MAX_FOV = 90.0f;
+    constexpr float MIN_ROTATION = 0.0f;
+    constexpr float MAX_ROTATION = 360.0f;
+    constexpr float Z_NEAR = 0.1f;
+    constexpr float Z_FAR = 200.0f;
+    constexpr float ZOOM_SENSITIVITY = -3.0;
+    constexpr float MOVE_SPEED = 5.0f; // units per second
+    constexpr float DRAG_THRESHOLD = 5.0f;
 
-FPSCamera fpsCamera(glm::vec3(0.0f, 3.0f, 10.0f));
-constexpr double ZOOM_SENSITIVITY = -3.0;
-constexpr float MOVE_SPEED = 5.0f; // units per second
+    const char *APP_TITLE = "MiraViewer v0.1";
+    int gWindowWidth = 1024;
+    int gWindowHeight = 768;
+    GLFWwindow *gWindow = nullptr;
+    bool gWireframe = false;
+    bool gFovUpdated = true;
+    bool gIsDragging = false;
 
-bool isDragging = false;
-const float DRAG_THRESHOLD = 5.0f;
+    FPSCamera gFpsCamera(glm::vec3(0.0f, 3.0f, 10.0f));
 
-double initialMouseX = 0.0;
-double initialMouseY = 0.0;
-double lastMouseX = 0.0;
-double lastMouseY = 0.0;
+    float ginitialMouseX = 0.0;
+    float gInitialMouseY = 0.0;
+    float gLastMouseX = 0.0;
+    float gLastMouseY = 0.0;
 
-float modelRotationAngleX = 0.0;
-float modelRotationAngleY = 0.0;
-float mouseSensitivity = 750.0f;
+    float gModelRotationAngleX = 0.0;
+    float gModelRotationAngleY = 0.0;
+    float gMouseSensitivity = 750.0f;
 
-ImVec4 clearColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    Mesh *gSelectedMesh = nullptr;
+    Texture2D *gSelectedTexture = nullptr;
+    bool gShowModelLoaderTool = false;
+
+    std::string gModelPath;
+    std::string gTexturePath;
+}
 
 // Function prototypes
 void glfw_onKey(GLFWwindow *window, int key, int scancode, int action, int mode);
@@ -61,13 +75,7 @@ void update(double elapsedTime);
 void showFPS(GLFWwindow *window);
 bool initOpenGL();
 void initImGUI();
-
-Mesh *selectedMesh = nullptr;
-Texture2D *selectedTexture = nullptr;
-bool showModelLoaderTool = false;
-
-std::string modelPath;
-std::string texturePath;
+void renderMenuBar();
 
 void renderMenuBar()
 {
@@ -82,11 +90,11 @@ void renderMenuBar()
                 const std::string ext = file.first.substr(file.first.find("."));
                 if (ext == ".obj")
                 {
-                    modelPath = file.second;
+                    gModelPath = file.second;
                 }
                 else
                 {
-                    texturePath = file.second;
+                    gTexturePath = file.second;
                 }
             }
         }
@@ -100,7 +108,7 @@ void renderMenuBar()
         {
             if (ImGui::MenuItem("Load", "Ctrl+L"))
             {
-                showModelLoaderTool = true;
+                gShowModelLoaderTool = true;
             }
 
             ImGui::Separator();
@@ -115,9 +123,9 @@ void renderMenuBar()
         ImGui::EndMainMenuBar();
     }
 
-    if (showModelLoaderTool)
+    if (gShowModelLoaderTool)
     {
-        ImGui::Begin("Model loader", &showModelLoaderTool);
+        ImGui::Begin("Model loader", &gShowModelLoaderTool);
 
         ImGui::Text("3D Model");
         ImGui::SameLine();
@@ -141,17 +149,17 @@ void renderMenuBar()
 
         if (ImGui::Button("Load"))
         {
-            if (!modelPath.empty() && !texturePath.empty())
+            if (!gModelPath.empty() && !gTexturePath.empty())
             {
-                selectedMesh = new Mesh();
-                selectedMesh->loadModel(modelPath);
+                gSelectedMesh = new Mesh();
+                gSelectedMesh->loadModel(gModelPath);
 
-                selectedTexture = new Texture2D();
-                selectedTexture->loadTexture(texturePath);
+                gSelectedTexture = new Texture2D();
+                gSelectedTexture->loadTexture(gTexturePath);
 
-                modelPath.clear();
-                texturePath.clear();
-                showModelLoaderTool = false;
+                gModelPath.clear();
+                gTexturePath.clear();
+                gShowModelLoaderTool = false;
             }
             else
             {
@@ -161,9 +169,9 @@ void renderMenuBar()
         ImGui::SameLine();
         if (ImGui::Button("Cancel"))
         {
-            modelPath.clear();
-            texturePath.clear();
-            showModelLoaderTool = false;
+            gModelPath.clear();
+            gTexturePath.clear();
+            gShowModelLoaderTool = false;
         }
 
         if (ImGui::BeginPopupModal("Validation Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
@@ -201,6 +209,10 @@ int main()
 
     double lastTime = glfwGetTime();
 
+    // Create the projection matrix
+    glm::mat4 projection = glm::mat4(1.0f);
+    ImVec4 clearColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+
     // Rendering loop
     while (!glfwWindowShouldClose(gWindow))
     {
@@ -217,13 +229,7 @@ int main()
         glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 model(1.0), view(1.0), projection(1.0);
-
-        // Create the View matrix
-        view = fpsCamera.getViewMatrix();
-
-        // Create the projection matrix
-        projection = glm::perspective(glm::radians(fpsCamera.getFOV()), static_cast<float>(gWindowWidth) / static_cast<float>(gWindowHeight), 0.1f, 200.0f);
+        glm::mat4 view = gFpsCamera.getViewMatrix();
 
         // Must be called BEFORE setting uniforms because setting uniforms is done
         // on the currently active shader program.
@@ -231,30 +237,26 @@ int main()
 
         // Pass the matrices to the shader
         shaderProgram.setUniform("view", view);
-        shaderProgram.setUniform("projection", projection);
 
         // Render the scene
-        glm::mat4 position = glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, 0.0f));
-        glm::mat4 scaling = glm::scale(glm::mat4(1.0), glm::vec3(1.0f, 1.0f, 1.0f));
-        glm::mat4 rotationX = glm::rotate(glm::mat4(1.0f), glm::radians(modelRotationAngleX), glm::vec3(1.0f, 0.0f, 0.0f));
-        glm::mat4 rotationY = glm::rotate(glm::mat4(1.0f), glm::radians(modelRotationAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(gModelRotationAngleX), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(gModelRotationAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        model = position * rotationX * rotationY * scaling;
         shaderProgram.setUniform("model", model);
 
-        if (selectedTexture != nullptr)
+        if (gSelectedTexture != nullptr)
         {
-            selectedTexture->bind();
+            gSelectedTexture->bind();
         }
 
-        if (selectedMesh != nullptr)
+        if (gSelectedMesh != nullptr)
         {
-            selectedMesh->draw();
+            gSelectedMesh->draw();
         }
 
-        if (selectedTexture != nullptr)
+        if (gSelectedTexture != nullptr)
         {
-            selectedTexture->unbind(0);
+            gSelectedTexture->unbind(0);
         }
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -263,21 +265,32 @@ int main()
 
         renderMenuBar();
 
-        if (selectedMesh != nullptr)
+        if (gSelectedMesh != nullptr)
         {
-            float zoomLevel = fpsCamera.getFOV();
+            float fov = gFpsCamera.getFOV();
 
             ImGui::Begin("Controls");
 
-            ImGui::SliderFloat("Rotation X", &modelRotationAngleX, 0.0f, 360.0f);  
-            ImGui::SliderFloat("Rotation Y", &modelRotationAngleY, 0.0f, 360.0f);  
-            ImGui::SliderFloat("Mouse rotation sensitivity", &mouseSensitivity, 100.0f, 1000.0f);
-            
-            if (ImGui::SliderFloat("Zoom", &zoomLevel, 1.0f, 120.0f)) {
-                fpsCamera.setFOV(glm::clamp(zoomLevel, 1.0f, 120.0f));
-            } 
+            ImGui::SliderFloat("Rotation X", &gModelRotationAngleX, MIN_ROTATION, MAX_ROTATION);
+            ImGui::SliderFloat("Rotation Y", &gModelRotationAngleY, MIN_ROTATION, MAX_ROTATION);
+            ImGui::SliderFloat("Mouse rotation sensitivity", &gMouseSensitivity, 100.0f, 1000.0f);
 
-            ImGui::ColorEdit3("Clear color", (float*)&clearColor);
+            if (ImGui::SliderFloat("FOV", &fov, MIN_FOV, MAX_FOV))
+            {
+
+                gFpsCamera.setFOV(glm::clamp(fov, MIN_FOV, MAX_FOV));
+                gFovUpdated = true;
+            }
+
+            if (gFovUpdated)
+            {
+                projection = glm::perspective(glm::radians(gFpsCamera.getFOV()), static_cast<float>(gWindowWidth) / static_cast<float>(gWindowHeight), Z_NEAR, Z_FAR);
+                gFovUpdated = false;
+            }
+
+            shaderProgram.setUniform("projection", projection);
+
+            ImGui::ColorEdit3("Clear color", (float *)&clearColor);
 
             ImGui::End();
         }
@@ -398,11 +411,10 @@ void glfw_onFramebufferSize(GLFWwindow *window, int width, int height)
 //-----------------------------------------------------------------------------
 void glfw_onMouseScroll(GLFWwindow *window, double deltaX, double deltaY)
 {
-    double fov = fpsCamera.getFOV() + deltaY * ZOOM_SENSITIVITY;
-
-    fov = glm::clamp(fov, 1.0, 120.0);
-
-    fpsCamera.setFOV(static_cast<float>(fov));
+    float fov = gFpsCamera.getFOV() + deltaY * ZOOM_SENSITIVITY;
+    fov = glm::clamp(fov, MIN_FOV, MAX_FOV);
+    gFpsCamera.setFOV(fov);
+    gFovUpdated = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -411,8 +423,8 @@ void glfw_onMouseScroll(GLFWwindow *window, double deltaX, double deltaY)
 void update(double elapsedTime)
 {
 
-    ImGuiIO& io = ImGui::GetIO();
-    if (io.WantCaptureMouse) 
+    ImGuiIO &io = ImGui::GetIO();
+    if (io.WantCaptureMouse)
     {
         return; // Skip processing mouse input in GLFW
     }
@@ -422,34 +434,36 @@ void update(double elapsedTime)
 
     if (glfwGetMouseButton(gWindow, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
-        if (!isDragging)
+        if (!gIsDragging)
         {
             // First click: store initial position
-            initialMouseX = mouseX;
-            initialMouseY = mouseY;
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-            isDragging = true;
+            ginitialMouseX = mouseX;
+            gInitialMouseY = mouseY;
+            gLastMouseX = mouseX;
+            gLastMouseY = mouseY;
+            gIsDragging = true;
         }
 
         // Check if movement is above threshold
-        float deltaX = static_cast<float>(mouseX - initialMouseX);
-        float deltaY = static_cast<float>(mouseY - initialMouseY);
+        float deltaX = static_cast<float>(mouseX - ginitialMouseX);
+        float deltaY = static_cast<float>(mouseY - gInitialMouseY);
         float distance = sqrt(deltaX * deltaX + deltaY * deltaY);
 
         if (distance > DRAG_THRESHOLD)
         {
             // Apply rotation only if the mouse has moved enough
-            modelRotationAngleX += static_cast<float>(mouseY - lastMouseY) * mouseSensitivity * static_cast<float>(elapsedTime);
-            modelRotationAngleY += static_cast<float>(mouseX - lastMouseX) * mouseSensitivity * static_cast<float>(elapsedTime);
+            gModelRotationAngleX += static_cast<float>(mouseY - gLastMouseY) * gMouseSensitivity * static_cast<float>(elapsedTime);
+            gModelRotationAngleY += static_cast<float>(mouseX - gLastMouseX) * gMouseSensitivity * static_cast<float>(elapsedTime);
+            gModelRotationAngleX = glm::clamp(gModelRotationAngleX, MIN_ROTATION, MAX_ROTATION);
+            gModelRotationAngleY = glm::clamp(gModelRotationAngleY, MIN_ROTATION, MAX_ROTATION);
         }
 
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
+        gLastMouseX = mouseX;
+        gLastMouseY = mouseY;
     }
     else
     {
-        isDragging = false;
+        gIsDragging = false;
     }
 
     // Clamp mouse cursor to center of screen
@@ -459,21 +473,21 @@ void update(double elapsedTime)
 
     // Forward/backward
     if (glfwGetKey(gWindow, GLFW_KEY_W) == GLFW_PRESS)
-        fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * fpsCamera.getLook());
+        gFpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * gFpsCamera.getLook());
     else if (glfwGetKey(gWindow, GLFW_KEY_S) == GLFW_PRESS)
-        fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * -fpsCamera.getLook());
+        gFpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * -gFpsCamera.getLook());
 
     // Strafe left/right
     if (glfwGetKey(gWindow, GLFW_KEY_A) == GLFW_PRESS)
-        fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * -fpsCamera.getRight());
+        gFpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * -gFpsCamera.getRight());
     else if (glfwGetKey(gWindow, GLFW_KEY_D) == GLFW_PRESS)
-        fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * fpsCamera.getRight());
+        gFpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * gFpsCamera.getRight());
 
     // Up/down
     if (glfwGetKey(gWindow, GLFW_KEY_Z) == GLFW_PRESS)
-        fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * fpsCamera.getUp());
+        gFpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * gFpsCamera.getUp());
     else if (glfwGetKey(gWindow, GLFW_KEY_X) == GLFW_PRESS)
-        fpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * -fpsCamera.getUp());
+        gFpsCamera.move(MOVE_SPEED * static_cast<float>(elapsedTime) * -gFpsCamera.getUp());
 }
 
 //-----------------------------------------------------------------------------
