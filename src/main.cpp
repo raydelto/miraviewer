@@ -38,7 +38,6 @@ bool gWireframe = false;
 FPSCamera fpsCamera(glm::vec3(0.0f, 3.0f, 10.0f));
 constexpr double ZOOM_SENSITIVITY = -3.0;
 constexpr float MOVE_SPEED = 5.0f; // units per second
-constexpr float MOUSE_SENSITIVITY = 750.0f;
 
 bool isDragging = false;
 const float DRAG_THRESHOLD = 5.0f;
@@ -50,6 +49,9 @@ double lastMouseY = 0.0;
 
 float modelRotationAngleX = 0.0;
 float modelRotationAngleY = 0.0;
+float mouseSensitivity = 750.0f;
+
+ImVec4 clearColor = ImVec4(0.23f, 0.38f, 0.47f, 1.0f);
 
 // Function prototypes
 void glfw_onKey(GLFWwindow *window, int key, int scancode, int action, int mode);
@@ -212,6 +214,7 @@ int main()
         update(deltaTime);
 
         // Clear the screen
+        glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 model(1.0), view(1.0), projection(1.0);
@@ -259,6 +262,25 @@ int main()
         ImGui::NewFrame();
 
         renderMenuBar();
+
+        if (selectedMesh != nullptr)
+        {
+            float zoomLevel = fpsCamera.getFOV();
+
+            ImGui::Begin("Controls");
+
+            ImGui::SliderFloat("Rotation X", &modelRotationAngleX, 0.0f, 360.0f);  
+            ImGui::SliderFloat("Rotation Y", &modelRotationAngleY, 0.0f, 360.0f);  
+            ImGui::SliderFloat("Mouse rotation sensitivity", &mouseSensitivity, 100.0f, 1000.0f);
+            
+            if (ImGui::SliderFloat("Zoom", &zoomLevel, 1.0f, 120.0f)) {
+                fpsCamera.setFOV(glm::clamp(zoomLevel, 1.0f, 120.0f));
+            } 
+
+            ImGui::ColorEdit3("Clear color", (float*)&clearColor);
+
+            ImGui::End();
+        }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -336,8 +358,6 @@ bool initOpenGL()
     // glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     // glfwSetCursorPos(gWindow, gWindowWidth / 2.0, gWindowHeight / 2.0);
 
-    glClearColor(0.23f, 0.38f, 0.47f, 1.0f);
-
     // Define the viewport dimensions
     glViewport(0, 0, gWindowWidth, gWindowHeight);
     glEnable(GL_DEPTH_TEST);
@@ -390,6 +410,13 @@ void glfw_onMouseScroll(GLFWwindow *window, double deltaX, double deltaY)
 //-----------------------------------------------------------------------------
 void update(double elapsedTime)
 {
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse) 
+    {
+        return; // Skip processing mouse input in GLFW
+    }
+
     double mouseX, mouseY;
     glfwGetCursorPos(gWindow, &mouseX, &mouseY);
 
@@ -413,8 +440,8 @@ void update(double elapsedTime)
         if (distance > DRAG_THRESHOLD)
         {
             // Apply rotation only if the mouse has moved enough
-            modelRotationAngleX += static_cast<float>(mouseY - lastMouseY) * MOUSE_SENSITIVITY * static_cast<float>(elapsedTime);
-            modelRotationAngleY += static_cast<float>(mouseX - lastMouseX) * MOUSE_SENSITIVITY * static_cast<float>(elapsedTime);
+            modelRotationAngleX += static_cast<float>(mouseY - lastMouseY) * mouseSensitivity * static_cast<float>(elapsedTime);
+            modelRotationAngleY += static_cast<float>(mouseX - lastMouseX) * mouseSensitivity * static_cast<float>(elapsedTime);
         }
 
         lastMouseX = mouseX;
