@@ -51,7 +51,7 @@ float modelRotationAngleX = 0.0;
 float modelRotationAngleY = 0.0;
 float mouseSensitivity = 750.0f;
 
-ImVec4 clearColor = ImVec4(0.23f, 0.38f, 0.47f, 1.0f);
+ImVec4 clearColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 // Function prototypes
 void glfw_onKey(GLFWwindow *window, int key, int scancode, int action, int mode);
