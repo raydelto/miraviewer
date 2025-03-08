@@ -25,7 +25,7 @@ OBJ = Texture2D.o \
 
 WARNINGS=-w
 
-FLAGS=-std=c++17 -mwindows
+FLAGS=-std=c++17
 
 ifeq ($(UNAME_S),Darwin)
 FRAMEWORKS=-framework OpenGL
@@ -60,6 +60,7 @@ else # Windows
 # Make sure to change the paths to the correct ones on your system.
 LIBS += -LC:\msys64\mingw64\lib
 INCLUDES += -IC:\msys64\mingw64\include
+FLAGS += -std=c++17 -mwindows
 
 all: main.exe
 
