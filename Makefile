@@ -23,7 +23,7 @@ OBJ = Texture2D.o \
 	common/includes/imgui/backends/imgui_impl_opengl3.o \
 	common/includes/ImGuiFileDialog/ImGuiFileDialog.o
 
-WARNINGS=-w
+WARNINGS=-Wall
 
 FLAGS=-std=c++17
 
