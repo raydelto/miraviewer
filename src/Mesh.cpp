@@ -13,7 +13,7 @@
 #include <assimp/postprocess.h>
 
 Mesh::Mesh()
-    : mLoaded(false), mVAO(0), mVBO(0), mEBO(0) // Initialize mVAO, mVBO, and mEBO
+    : mLoaded(false), mVAO(0), mVBO(0), mEBO(0)
 {
 }
 
@@ -21,7 +21,7 @@ Mesh::~Mesh()
 {
     glDeleteVertexArrays(1, &mVAO);
     glDeleteBuffers(1, &mVBO);
-    glDeleteBuffers(1, &mEBO); // Delete EBO
+    glDeleteBuffers(1, &mEBO);
 }
 
 void Mesh::loadModel(const std::string &path)

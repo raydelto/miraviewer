@@ -18,9 +18,9 @@ class Camera
 public:
 	glm::mat4 getViewMatrix() const;
 
-	virtual void setPosition(const glm::vec3 &position) {}
-	virtual void rotate(float yaw, float pitch) {} // in degrees
-	virtual void move(const glm::vec3 &offsetPos) {}
+	virtual void setPosition(const glm::vec3 &position) = 0;
+	virtual void rotate(float yaw, float pitch) = 0; // in degrees
+	virtual void move(const glm::vec3 &offsetPos) = 0;
 
 	const glm::vec3 &getLook() const;
 	const glm::vec3 &getRight() const;

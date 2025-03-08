@@ -38,5 +38,7 @@ private:
 	bool mLoaded;
 	std::vector<Vertex> mVertices;
 	std::vector<GLuint> mIndices;
-	GLuint mVBO, mVAO, mEBO;
+	GLuint mVAO;
+	GLuint mVBO;
+	GLuint mEBO;
 };
