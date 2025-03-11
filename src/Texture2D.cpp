@@ -75,7 +75,7 @@ bool Texture2D::loadTexture(const string &fileName, bool generateMipMaps)
 //-----------------------------------------------------------------------------
 void Texture2D::bind(GLuint texUnit)
 {
-	assert(texUnit >= 0 && texUnit < 32);
+	assert(texUnit < 32);
 
 	glActiveTexture(GL_TEXTURE0 + texUnit);
 	glBindTexture(GL_TEXTURE_2D, mTexture);
