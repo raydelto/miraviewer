@@ -50,7 +50,7 @@ glad.o: third-party-source-code/glad.c
 	gcc -c third-party-source-code/glad.c $(INCLUDES) $(WARNINGS)
 
 main: src/main.cpp $(OBJ)
-	g++ src/main.cpp $(OBJ) $(LIBS) $(INCLUDES) -o main $(WARNINGS) $(FLAGS)
+	g++  src/main.cpp  $(OBJ) $(LIBS) $(INCLUDES) -o miraviewer $(WARNINGS) $(FLAGS) 
 
 clean:
 	rm -f *.o
@@ -65,7 +65,8 @@ FLAGS += -std=c++17 -mwindows
 all: main.exe
 
 main.exe: src/main.cpp $(OBJ)
-	g++ src/main.cpp $(OBJ) $(LIBS) $(INCLUDES) -o main.exe $(WARNINGS) $(FLAGS)
+	windres icon.rc -O coff -o icon.res
+	g++ icon.res src/main.cpp $(OBJ) $(LIBS) $(INCLUDES) -o miraviewer.exe $(WARNINGS) $(FLAGS)
 
 clean:
 	del *.o
