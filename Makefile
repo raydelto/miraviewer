@@ -64,8 +64,10 @@ FLAGS += -std=c++17 -mwindows
 
 all: main.exe
 
-main.exe: src/main.cpp $(OBJ)
+icon.res: icon.rc
 	windres icon.rc -O coff -o icon.res
+
+main.exe: src/main.cpp icon.res $(OBJ)
 	g++ icon.res src/main.cpp $(OBJ) $(LIBS) $(INCLUDES) -o miraviewer.exe $(WARNINGS) $(FLAGS)
 
 clean:
