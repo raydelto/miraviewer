@@ -27,6 +27,7 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "ImGuiFileDialog/ImGuiFileDialog.h"
+#include "stb_image/stb_image.h"
 
 namespace
 {
@@ -47,6 +48,7 @@ namespace
     bool gWireframe = false;
     bool gPerspectiveUpdated = true;
     bool gIsDragging = false;
+    bool gSelectingTexture = false;
 
     FPSCamera gFpsCamera(glm::vec3(0.0f, 3.0f, 10.0f));
 
@@ -55,9 +57,9 @@ namespace
     float gLastMouseX = 0.0;
     float gLastMouseY = 0.0;
 
-    float gModelRotationAngleX = 0.0;
-    float gModelRotationAngleY = 0.0;
-    float gMouseSensitivity = 750.0f;
+    float gModelRotationAngleX = 180.0;
+    float gModelRotationAngleY = 180.0;
+    float gMouseSensitivity = 100.0f;
 
     Mesh *gSelectedMesh = nullptr;
     Texture2D *gSelectedTexture = nullptr;
@@ -87,16 +89,16 @@ void renderMenuBar()
 
             for (const auto &file : selectedFiles)
             {
-                const std::string ext = file.first.substr(file.first.find("."));
-                if (ext == ".obj")
-                {
-                    gModelPath = file.second;
-                }
-                else
+                if (gSelectingTexture)
                 {
                     gTexturePath = file.second;
                 }
+                else
+                {
+                    gModelPath = file.second;
+                }
             }
+            gSelectingTexture = false;
         }
 
         ImGuiFileDialog::Instance()->Close();
@@ -133,7 +135,8 @@ void renderMenuBar()
         {
             IGFD::FileDialogConfig config;
             config.path = ".";
-            const char *filters = "Models files (*.obj){.obj}";
+            const char *filters = "Model files (*.obj *.md2 *.md3 *.md5 *.fbx *.dae *.stl *.ply){.obj,.md2,.md3,.md5,.fbx,.dae,.stl,.ply}";
+
             ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose files", filters, config);
         }
 
@@ -141,9 +144,10 @@ void renderMenuBar()
         ImGui::SameLine();
         if (ImGui::Button("...##Texture"))
         {
+            gSelectingTexture = true;
             IGFD::FileDialogConfig config;
             config.path = ".";
-            const char *filters = "Image files (*.png *.gif *.jpg *.jpeg){.png,.gif,.jpg,.jpeg}";
+            const char *filters = "Image files (*.png *.gif *.jpg *.jpeg *.tga *.bmp){.png,.gif,.jpg,.jpeg,.tga,.bmp}";
             ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose files", filters, config);
         }
 
@@ -240,7 +244,7 @@ int main()
 
         // Render the scene
         glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(gModelRotationAngleX), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(gModelRotationAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, -glm::radians(gModelRotationAngleY), glm::vec3(0.0f, 1.0f, 0.0f));
 
         shaderProgram.setUniform("model", model);
 
@@ -271,11 +275,11 @@ int main()
 
             ImGui::Begin("Controls");
 
-            ImGui::SliderFloat("Rotation X", &gModelRotationAngleX, MIN_ROTATION, MAX_ROTATION);
-            ImGui::SliderFloat("Rotation Y", &gModelRotationAngleY, MIN_ROTATION, MAX_ROTATION);
+            ImGui::SliderFloat("X Axis Rotation", &gModelRotationAngleX, MIN_ROTATION, MAX_ROTATION);
+            ImGui::SliderFloat("Y Axis Rotation", &gModelRotationAngleY, MIN_ROTATION, MAX_ROTATION);
             ImGui::SliderFloat("Mouse rotation sensitivity", &gMouseSensitivity, 100.0f, 1000.0f);
 
-            if (ImGui::SliderFloat("FOV", &fov, MIN_FOV, MAX_FOV))
+            if (ImGui::SliderFloat("Field of View (FOV)", &fov, MIN_FOV, MAX_FOV))
             {
 
                 gFpsCamera.setFOV(glm::clamp(fov, MIN_FOV, MAX_FOV));
@@ -290,7 +294,7 @@ int main()
 
             shaderProgram.setUniform("projection", projection);
 
-            ImGui::ColorEdit3("Clear color", (float *)&clearColor);
+            ImGui::ColorEdit3("Background color", (float *)&clearColor);
 
             ImGui::End();
         }
@@ -340,6 +344,12 @@ bool initOpenGL()
         glfwTerminate();
         return false;
     }
+
+    // Set the window's icon
+    GLFWimage images[1];
+    images[0].pixels = stbi_load("resources/miraviewer.png", &images[0].width, &images[0].height, 0, 4);
+    glfwSetWindowIcon(gWindow, 1, images);
+    stbi_image_free(images[0].pixels);
 
     // Make the window's context the current one
     glfwMakeContextCurrent(gWindow);
