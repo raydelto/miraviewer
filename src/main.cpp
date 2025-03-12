@@ -46,7 +46,7 @@ namespace
     int gWindowHeight = 768;
     GLFWwindow *gWindow = nullptr;
     bool gWireframe = false;
-    bool gFovUpdated = true;
+    bool gPerspectiveUpdated = true;
     bool gIsDragging = false;
     bool gSelectingTexture = false;
 
@@ -283,13 +283,13 @@ int main()
             {
 
                 gFpsCamera.setFOV(glm::clamp(fov, MIN_FOV, MAX_FOV));
-                gFovUpdated = true;
+                gPerspectiveUpdated = true;
             }
 
-            if (gFovUpdated)
+            if (gPerspectiveUpdated)
             {
                 projection = glm::perspective(glm::radians(gFpsCamera.getFOV()), static_cast<float>(gWindowWidth) / static_cast<float>(gWindowHeight), Z_NEAR, Z_FAR);
-                gFovUpdated = false;
+                gPerspectiveUpdated = false;
             }
 
             shaderProgram.setUniform("projection", projection);
@@ -413,6 +413,7 @@ void glfw_onFramebufferSize(GLFWwindow *window, int width, int height)
 {
     gWindowWidth = width;
     gWindowHeight = height;
+    gPerspectiveUpdated = true;
     glViewport(0, 0, static_cast<float>(gWindowWidth), static_cast<float>(gWindowHeight));
 }
 
@@ -424,7 +425,7 @@ void glfw_onMouseScroll(GLFWwindow *window, double deltaX, double deltaY)
     float fov = gFpsCamera.getFOV() + deltaY * ZOOM_SENSITIVITY;
     fov = glm::clamp(fov, MIN_FOV, MAX_FOV);
     gFpsCamera.setFOV(fov);
-    gFovUpdated = true;
+    gPerspectiveUpdated = true;
 }
 
 //-----------------------------------------------------------------------------
