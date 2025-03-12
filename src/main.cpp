@@ -347,7 +347,7 @@ bool initOpenGL()
 
     // Set the window's icon
     GLFWimage images[1];
-    images[0].pixels = stbi_load("miraviewer.png", &images[0].width, &images[0].height, 0, 4);
+    images[0].pixels = stbi_load("resources/miraviewer.png", &images[0].width, &images[0].height, 0, 4);
     glfwSetWindowIcon(gWindow, 1, images);
     stbi_image_free(images[0].pixels);
 
