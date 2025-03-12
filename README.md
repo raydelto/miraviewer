@@ -1,5 +1,7 @@
 # Mira Viewer
 
+![MiraViewer v0.1 Windows 64 build](http://www.raydelto.org/miraviewer0.1.png)
+
 Mira viewer is an Open Source 3D model visualizer.
 
 The codebase is a fork of the minimalist First Person Shooter (FPS ) created by Steve Jones. 
