@@ -272,11 +272,11 @@ int main()
 
             ImGui::Begin("Controls");
 
-            ImGui::SliderFloat("Rotation X", &gModelRotationAngleX, MIN_ROTATION, MAX_ROTATION);
-            ImGui::SliderFloat("Rotation Y", &gModelRotationAngleY, MIN_ROTATION, MAX_ROTATION);
+            ImGui::SliderFloat("X Axis Rotation", &gModelRotationAngleX, MIN_ROTATION, MAX_ROTATION);
+            ImGui::SliderFloat("Y Axis Rotation", &gModelRotationAngleY, MIN_ROTATION, MAX_ROTATION);
             ImGui::SliderFloat("Mouse rotation sensitivity", &gMouseSensitivity, 100.0f, 1000.0f);
 
-            if (ImGui::SliderFloat("FOV", &fov, MIN_FOV, MAX_FOV))
+            if (ImGui::SliderFloat("Field of View (FOV)", &fov, MIN_FOV, MAX_FOV))
             {
 
                 gFpsCamera.setFOV(glm::clamp(fov, MIN_FOV, MAX_FOV));
@@ -291,7 +291,7 @@ int main()
 
             shaderProgram.setUniform("projection", projection);
 
-            ImGui::ColorEdit3("Clear color", (float *)&clearColor);
+            ImGui::ColorEdit3("Background color", (float *)&clearColor);
 
             ImGui::End();
         }
