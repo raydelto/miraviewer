@@ -50,7 +50,7 @@ glad.o: third-party-source-code/glad.c
 	gcc -c third-party-source-code/glad.c $(INCLUDES) $(WARNINGS)
 
 main: src/main.cpp $(OBJ)
-	g++  src/main.cpp  $(OBJ) $(LIBS) $(INCLUDES) -o miraviewer $(WARNINGS) $(FLAGS) 
+	g++  src/main.cpp  $(OBJ) $(LIBS) $(INCLUDES) -o main $(WARNINGS) $(FLAGS) 
 
 clean:
 	rm -f *.o
