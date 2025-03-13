@@ -201,7 +201,6 @@ int main()
 {
     if (!initOpenGL())
     {
-        // An error occured
         std::cerr << "GLFW initialization failed" << std::endl;
         return -1;
     }
@@ -322,11 +321,8 @@ int main()
 //-----------------------------------------------------------------------------
 bool initOpenGL()
 {
-    // Intialize GLFW
-    // GLFW is configured.  Must be called before calling any GLFW functions
     if (!glfwInit())
     {
-        // An error occured
         std::cerr << "GLFW initialization failed" << std::endl;
         return false;
     }
